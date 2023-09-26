@@ -2,7 +2,7 @@
 
 ![plot](./image.png)
 
-A shiny app that allows you to summarize nettskjema data in TSD (or other CSV files).
+A shiny app that allows you to summarize UiO-Nettskjema data (csv-files), or other csv-files of similar format.
 The 'base' software lets you visualize up to two variables together, with one grouping variable,
 with different options depending on the nature of the variable (e.g. if continuous or categorical).
 The resulting plot dimensions can be adjusted with sliders, and saved in a variety of image formats.
