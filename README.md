@@ -1,6 +1,6 @@
-# TSD nettskjema Visualization
+# UiO nettskjema Visualization
 
-![plot](./image.png)
+![image](https://github.com/LAMaglan/UiONettskjemaViz/assets/29206211/cd0d2fd1-29fe-4107-bcdb-0ca8d4288b55)
 
 A shiny app that allows you to summarize UiO-Nettskjema data (csv-files), or other csv-files of similar format.
 The 'base' software lets you visualize up to two variables together, with one grouping variable,
