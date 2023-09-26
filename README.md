@@ -9,20 +9,20 @@ The resulting plot dimensions can be adjusted with sliders, and saved in a varie
 
 ## Getting started
 
-Download app.R and either
-a) highlight all code and run (e.g. `ctrl + A` and `ctrl + enter`)
-b) create a windows batch file (`.bat`) that will execute `app.R` when double-clicked
-(Note: will be added to the repo).
+Install the package from GitHub
 
-### Preqrequisites
-
-
-For the 'base' software, the following packages are necessary
-```
-shiny
-ggplot2
-dplyr
+```r
+devtools::install_github("LAMaglan/UiONettskjemaViz")
 ```
 
-These can be installed through
-`install.packages("<name_of_package>")`
+Load the package
+
+```r
+library(UiONettskjemaViz)
+```
+
+Run the Shiny app
+
+```r
+UiONettskjemaViz::run_app()
+```
