@@ -1,11 +1,9 @@
-
-##locally###
 library(shiny)
 library(ggplot2)
 library(dplyr)
+library(gt)
+library(gtsummary)
 
-#library(gtsummary)
-####
 
 ########################ui##################################
 #############################################################
@@ -141,7 +139,49 @@ ui <- navbarPage("UiO Nettskjema visualization tool",
                    )
                    
                    
-                 ) #end of "plot options" tabpanel
+                 ), #end of "plot options" tabpanel
+                 
+                 
+                 
+                 #####Tab panel for "table options"
+                 tabPanel(
+                   "Table options",
+
+                   #conditionalPanel("output.fileUploaded", #previously when ONLY one nettskjema possible
+                   #ONLY show options when file is uploaded (see server)
+                   conditionalPanel(
+                     #"output.fileUploaded", # so no empty sidebar is shown
+                     "output.fileUploaded & input.files_loaded == 'Yes'", # so no empty sidebar is shown
+                     sidebarPanel(
+                       selectInput("table_variables", label = "Which variables do you want to include?", 
+                                   multiple= TRUE, choices = ""),
+                       
+                       #put in conditional later
+                       selectInput("table_grouping", label = "Variable to group by", choices = ""),
+                       helpText("note: table grouping variable must be included in inclusion"),
+                       selectInput("createTable", label = "Create table!", choices = c("No", "Yes")),
+                       
+                       conditionalPanel(
+                         "input.createTable == 'Yes'",
+                         textInput("table_name", "Input a name for the table", value = "table"), #value is initial text
+                         #other formats png, pdf, etc. need package 'webshot'
+                         selectInput("table_format", label = "Choose plot format", choices = "html"), 
+                         downloadButton("downloadTable", "Download Table")
+                       )
+                       
+                       
+                     )
+                 ), #end of conditionalPanel with sidebar
+                 
+                 mainPanel(
+                   #tableOutput('result_table')
+                   gt::gt_output('result_table') #GT
+                 )
+                 
+                 
+              )
+                 
+                 
                  
                  
                  
@@ -675,8 +715,108 @@ server <- function(input, output, session) {
   )
   
   
-  ############################
+  ############ Table details ###########
   
+  ### update table variables###
+  
+  #this crashes everything after loading data (why?)
+  observe({
+    
+    updateSelectInput(session,"table_variables",  ##I think observe, or updateSelectInput needs session...
+                      label = "Which variables do you want to include?",
+                      choices = c(names(filedata()))
+                      )
+  })
+  
+  ### update table grouping options###
+  # table_group_choices <- reactive({
+  #   
+  #   req(input$table_variables)
+  # 
+  #   #table_group_choices <- names(filedata()[,input$table_variables])
+  # 
+  # })
+  
+  observe({
+    
+    updateSelectInput(session,"table_grouping",  ##I think observe, or updateSelectInput needs session...
+                      label = "Variable to group by",
+                      choices = c("-NOTHING-", input$table_variables),
+                      selected = "-NOTHING-")
+  })
+  
+  ##########################
+  
+  ######## Table output ######
+  
+  make_table <- reactive({
+  #output$result_table <- gt::render_gt({
+  #output$result_table <- renderTable({
+    
+    req(input$files_loaded)
+    req(input$table_variables)
+    req(input$table_grouping) #necessary, if no do_grouping
+    
+    if (input$files_loaded == "Yes"){
+      
+      table_data <- filedata()
+      
+      if (input$table_grouping == "-NOTHING-"){ #no grouping
+        
+        ##base R (test)
+        # result_table <- summary(table_data) #this works, so input IS correct...??
+        
+        ##gsummary
+        result_table <- gtsummary::tbl_summary(table_data[, input$table_variables]) %>%
+          gtsummary::as_gt() #this is not necessary when running outside of shiny (hm..)
+        
+        
+      
+      } else { #some grouping var
+        
+        result_table <- gtsummary::tbl_summary(table_data[, input$table_variables], 
+                                               by = input$table_grouping) %>%
+          gtsummary::as_gt()
+        
+      }
+      
+      result_table #move down later
+      
+    }
+    
+    
+  })
+  
+  
+  output$result_table <- gt::render_gt({
+    
+    if (input$createTable == "Yes"){
+      make_table()
+    }
+    
+    
+  })
+  
+  
+  output$downloadTable <- downloadHandler(
+    
+    filename = function() { ## can add name here
+      
+      paste0(input$table_name, ".", input$table_format)
+      
+    }, 
+    
+    content = function(file) {
+      
+      gt::gtsave(file, data = make_table())
+
+      
+    }
+  )
+  
+  ############################# Finished table output ############################
+
+
   
 } # close the shinyServer
 ###################################################################################################
