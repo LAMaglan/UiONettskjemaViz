@@ -12,7 +12,7 @@ The resulting plot dimensions can be adjusted with sliders, and saved in a varie
 Install the package from GitHub
 
 ```r
-devtools::install_github("LAMaglan/UiONettskjemaViz")
+remotes::install_github("LAMaglan/UiONettskjemaViz")
 ```
 
 Load the package
