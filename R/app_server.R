@@ -515,4 +515,103 @@ app_server <- function(input, output, session) {
     }
   )
 
+  ############ Table details ###########
+
+  ### update table variables###
+
+  #this crashes everything after loading data (why?)
+  observe({
+
+    updateSelectInput(session,"table_variables",  ##I think observe, or updateSelectInput needs session...
+                      label = "Which variables do you want to include?",
+                      choices = c(names(filedata()))
+    )
+  })
+
+  ### update table grouping options###
+  # table_group_choices <- reactive({
+  #
+  #   req(input$table_variables)
+  #
+  #   #table_group_choices <- names(filedata()[,input$table_variables])
+  #
+  # })
+
+  observe({
+
+    updateSelectInput(session,"table_grouping",  ##I think observe, or updateSelectInput needs session...
+                      label = "Variable to group by",
+                      choices = c("-NOTHING-", input$table_variables),
+                      selected = "-NOTHING-")
+  })
+
+  ##########################
+
+  ######## Table output ######
+
+  make_table <- reactive({
+
+    req(input$files_loaded)
+    req(input$table_variables)
+
+    #necessary, if no do_grouping
+    req(input$table_grouping)
+
+    if (input$files_loaded == "Yes"){
+
+      table_data <- filedata()
+
+      if (input$table_grouping == "-NOTHING-"){ #no grouping
+
+        ##gsummary
+        result_table <- gtsummary::tbl_summary(table_data[, input$table_variables]) %>%
+          gtsummary::as_gt()
+
+
+
+      } else {
+        #some grouping var
+
+        result_table <- gtsummary::tbl_summary(table_data[, input$table_variables],
+                                               by = input$table_grouping) %>%
+          gtsummary::as_gt()
+
+      }
+
+      result_table #move down later
+
+    }
+
+
+  })
+
+
+  output$result_table <- gt::render_gt({
+
+    if (input$createTable == "Yes"){
+      make_table()
+    }
+
+
+  })
+
+
+  output$downloadTable <- downloadHandler(
+
+    filename = function() {
+
+      paste0(input$table_name, ".", input$table_format)
+
+    },
+
+    content = function(file) {
+
+      gt::gtsave(file, data = make_table())
+
+
+    }
+  )
+
+  ############################# Finished table output ############################
+
 }
