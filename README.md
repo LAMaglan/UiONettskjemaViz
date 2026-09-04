@@ -8,6 +8,10 @@ with different options depending on the nature of the variable (e.g. if continuo
 The resulting plot dimensions can be adjusted with sliders, and saved in a variety of image formats.
 Also creates tables using gt(summary).
 
+
+It is hosted in shinyapp.sio:
+[https://lamaglan.shinyapps.io/uionettskjemaviz/](https://lamaglan.shinyapps.io/uionettskjemaviz/)
+
 ## Getting started
 
 Install the package from GitHub
