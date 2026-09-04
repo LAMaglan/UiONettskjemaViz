@@ -141,7 +141,46 @@ app_ui <- function(request) {
                  )
 
 
-               ) #end of "plot options" tabpanel
+               ), #end of "plot options" tabpanel
+
+               #####Tab panel for "table options"
+               tabPanel(
+                 "Table options",
+
+                 #conditionalPanel("output.fileUploaded", #previously when ONLY one nettskjema possible
+                 #ONLY show options when file is uploaded (see server)
+                 conditionalPanel(
+                   #"output.fileUploaded", # so no empty sidebar is shown
+                   "output.fileUploaded & input.files_loaded == 'Yes'", # so no empty sidebar is shown
+                   sidebarPanel(
+                     selectInput("table_variables", label = "Which variables do you want to include?",
+                                 multiple= TRUE, choices = ""),
+
+                     #put in conditional later
+                     selectInput("table_grouping", label = "Variable to group by", choices = ""),
+                     helpText("note: table grouping variable must be included in inclusion"),
+                     selectInput("createTable", label = "Create table!", choices = c("No", "Yes")),
+
+                     conditionalPanel(
+                       "input.createTable == 'Yes'",
+                       textInput("table_name", "Input a name for the table", value = "table"), #value is initial text
+                       #other formats png, pdf, etc. need package 'webshot'
+                       selectInput("table_format", label = "Choose plot format", choices = "html"),
+                       downloadButton("downloadTable", "Download Table")
+                     )
+
+
+                   )
+                 ), #end of conditionalPanel with sidebar
+
+                 mainPanel(
+                   #tableOutput('result_table')
+                   gt::gt_output('result_table') #GT
+                 )
+
+
+               )
+               #########################
     )
 
   )
